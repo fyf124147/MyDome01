@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zking.fyf.mapper.StudentMapper" >
+  <cache type="org.mybatis.caches.ehcache.EhcacheCache">
+  <!--<cache type="com.zking.fyf.redis.RedisCache">-->
+  <property name="timeToIdleSeconds" value="3600"/>
+    <property name="timeToLiveSeconds" value="3600"/>
+    <property name="maxEntriesLocalHeap" value="1000"/>
+    <property name="maxEntriesLocalDisk" value="10000000"/>
+    <property name="memoryStoreEvictionPolicy" value="LRU"/>
+  </cache>
+
+  <resultMap id="BaseResultMap" type="com.zking.fyf.model.Student" >
+    <constructor >
+      <idArg column="sid" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="SNAME" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="SNAME_PINYIN" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="AGE" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="REMARK" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </constructor>
+  </resultMap>
+
+  <resultMap id="row" type="com.zking.fyf.model.Student" >
+      <id column="sid" property="sid" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <result column="SNAME" property="sname" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="SNAME_PINYIN" property="snamePinyin" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="AGE" property="age"  jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <result column="REMARK" property="remark" jdbcType="VARCHAR" javaType="java.lang.String" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    sid, SNAME, SNAME_PINYIN, AGE, REMARK
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" useCache="false">
+    select
+    <include refid="Base_Column_List" />
+    from t_student
+    where sid = #{sid,jdbcType=INTEGER}
+  </select>
+  <select id="list" resultMap="row" parameterType="com.zking.fyf.model.Student">
+    select *
+    from t_student
+    where 1=1
+    <if test="sname != null and ''!=sname" >
+      and sname like concat('%',#{sname,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="MINAge != null" >
+      and age &gt;= #{MINAge,jdbcType=INTEGER}
+    </if>
+    <if test="MAXAge != null" >
+      and age &lt;= #{MAXAge,jdbcType=INTEGER}
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_student
+    where sid = #{sid,jdbcType=INTEGER}
+  </delete>
+  <delete id="delAll" parameterType="com.zking.fyf.model.Student">
+  delete from t_student
+    where sid in
+    <foreach item="item" collection="sids" separator="," open="(" close=")" index="">
+          #{item, jdbcType=INTEGER}
+     </foreach>
+  </delete>
+  <insert id="insert" parameterType="com.zking.fyf.model.Student" >
+    insert into t_student (sid, SNAME, SNAME_PINYIN,
+      AGE, REMARK)
+    values (#{sid,jdbcType=INTEGER}, #{sname,jdbcType=VARCHAR}, #{snamePinyin,jdbcType=VARCHAR},
+      #{age,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zking.fyf.model.Student" >
+    insert into t_student
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        sid,
+      </if>
+      <if test="sname != null" >
+        SNAME,
+      </if>
+      <if test="snamePinyin != null" >
+        SNAME_PINYIN,
+      </if>
+      <if test="age != null" >
+        AGE,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="sname != null" >
+        #{sname,jdbcType=VARCHAR},
+      </if>
+      <if test="snamePinyin != null" >
+        #{snamePinyin,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zking.fyf.model.Student" >
+    update t_student
+    <set >
+      <if test="sname != null" >
+        SNAME = #{sname,jdbcType=VARCHAR},
+      </if>
+      <if test="snamePinyin != null" >
+        SNAME_PINYIN = #{snamePinyin,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        AGE = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zking.fyf.model.Student" >
+    update t_student
+    set SNAME = #{sname,jdbcType=VARCHAR},
+      SNAME_PINYIN = #{snamePinyin,jdbcType=VARCHAR},
+      AGE = #{age,jdbcType=INTEGER},
+      REMARK = #{remark,jdbcType=VARCHAR}
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+</mapper>

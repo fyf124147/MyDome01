@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zking.fyf.mapper.NewsMapper" >
+  <resultMap id="BaseResultMap" type="com.zking.fyf.model.News" >
+    <constructor >
+      <idArg column="news_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="title" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </constructor>
+  </resultMap>
+
+  <resultMap id="m2m" type="com.zking.fyf.model.News" >
+      <id column="news_id" property="newsId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <result column="title" property="title" jdbcType="VARCHAR" javaType="java.lang.String" />
+    <collection property="categoryList" ofType="com.zking.fyf.model.Category">
+      <id column="category_id" property="categoryId"/>
+      <result column="category_name" property="categoryName"/>
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    news_id, title
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_news
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </select>
+    <select id="loadCasecode" resultMap="m2m" parameterType="com.zking.fyf.model.News">
+      select n.*,c.*
+from t_news n left outer join t_news_category nc on n.news_id = nc.nid
+left outer join t_category c on nc.cid=c.category_id
+where n.news_id = #{newsId,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_news
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </delete>
+  <delete id="removeCategory" parameterType="com.zking.fyf.vo.NewsVo">
+  delete from t_news_category
+    where nid = #{newsId,jdbcType=INTEGER} AND cid = #{categoryId,jdbcType=INTEGER}
+
+  </delete>
+  <delete id="deleteq">
+     delete from t_news_category
+    where nid = #{newsId,jdbcType=INTEGER}
+
+  </delete>
+  <insert id="insert" parameterType="com.zking.fyf.model.News" >
+    insert into t_news (news_id, title)
+    values (#{newsId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zking.fyf.model.News" >
+    insert into t_news
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="newsId != null" >
+        news_id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="newsId != null" >
+        #{newsId,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <insert id="addCategory" parameterType="com.zking.fyf.vo.NewsVo">
+    insert into t_news_category (nid, cid)
+    values (#{newsId,jdbcType=INTEGER}, #{categoryId,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zking.fyf.model.News" >
+    update t_news
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zking.fyf.model.News" >
+    update t_news
+    set title = #{title,jdbcType=VARCHAR}
+    where news_id = #{newsId,jdbcType=INTEGER}
+  </update>
+</mapper>
