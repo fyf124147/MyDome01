@@ -36,6 +36,7 @@ public class HelloController {
     }
 @RequestMapping("/toAdd")
 public String toAdd(Model model){
+    System.out.println("aaaaa");
     System.out.println("toAdd");
     return "addStudent";
 }
